@@ -93,9 +93,7 @@ class Client:
             command + '\n',
         )
 
-        self._ctrl_transfer(0xA1, 2, 0, 0, 1)
-        output = ''.join([chr(x) for x in self._ctrl_transfer(0xA1, 1, 0, 0, 4096)])
-
+        output = ''
         while True:
             self._ctrl_transfer(0xA1, 2, 0, 0, 1)
             line = ''.join([chr(x) for x in self._ctrl_transfer(0xA1, 1, 0, 0, 4096)])
@@ -103,6 +101,9 @@ class Client:
                 break
 
             output += line
+
+        if output.endswith('\n\rpongoOS> '):
+            output = output[:-11]
 
         self._ctrl_transfer(0x21, 4, 0xFFFF, 0, 0)
         return output or None
