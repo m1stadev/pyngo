@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Optional
 
 import usb
 import usb.backend.libusb1
@@ -27,7 +28,7 @@ def _get_backend() -> str:
 
             return usb.backend.libusb1.get_backend(find_library=lambda _: file_)
 
-    pass  # TODO: raise error
+    raise usb.core.NoBackendError('No backend available')
 
 
 class Client:
@@ -71,9 +72,9 @@ class Client:
         ):
             return cls(device)
 
-        raise RuntimeError('No pongoOS device found')
+        raise DeviceNotFoundError('No pongoOS USB device found')
 
-    def send_command(self, command: str) -> str:
+    def send_command(self, command: str) -> Optional[str]:
         if not isinstance(command, str):
             raise TypeError('Command must be a string')
 
@@ -102,4 +103,4 @@ class Client:
 
             output += output_line
 
-        return output
+        return output or None
