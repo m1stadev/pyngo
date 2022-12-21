@@ -25,7 +25,7 @@ from . import __version__
     help='Increase verbosity.',
 )
 def main(command: str, verbose: bool) -> None:
-    '''A Python CLI tool for decrypting iOS/iPadOS bootchain firmware keys.'''
+    '''A Python client for interacting with pongoOS.'''
 
     if not verbose:
         sys.tracebacklimit = 0
