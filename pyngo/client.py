@@ -60,6 +60,9 @@ class Client:
     def _ctrl_transfer(self, *args):
         return self._device.ctrl_transfer(*args)
 
+    def _bulk_upload(self, data: bytes):
+        return self._device.write(2, data)
+
     @classmethod
     def init(cls):
         for device in usb.core.find(
@@ -81,7 +84,6 @@ class Client:
         if len(command) > 512:
             raise ValueError('Command must be less than 512 characters long')
 
-        self._ctrl_transfer(0x21, 4, 0xFFFF, 0, 0)
         self._ctrl_transfer(0x21, 4, 1, 0, 0)
         self._ctrl_transfer(
             0x21,
@@ -93,14 +95,23 @@ class Client:
 
         self._ctrl_transfer(0xA1, 2, 0, 0, 1)
         output = ''.join([chr(x) for x in self._ctrl_transfer(0xA1, 1, 0, 0, 4096)])
-        while True:
-            output_line = ''.join(
-                [chr(x) for x in self._ctrl_transfer(0xA1, 1, 0, 0, 4096)]
-            )
 
-            if 'pongoOS>' in output_line:
+        while True:
+            self._ctrl_transfer(0xA1, 2, 0, 0, 1)
+            line = ''.join([chr(x) for x in self._ctrl_transfer(0xA1, 1, 0, 0, 4096)])
+            if len(line) == 0:
                 break
 
-            output += output_line
+            output += line
 
+        self._ctrl_transfer(0x21, 4, 0xFFFF, 0, 0)
         return output or None
+
+    def send_data(self, data: bytes) -> None:
+        if not isinstance(data, bytes):
+            raise TypeError('Data must be a bytes object')
+
+        # this line crashes pongoOS
+        self._ctrl_transfer(0x21, 1, 0, 0, 4)
+        self._device.write(2, data)
+        self._ctrl_transfer(0x21, 4, 0xFFFF, 0, 0)
