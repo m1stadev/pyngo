@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "pyngo"
 version = "1.0"
-description = "A client for interacting with pongoOS."
+description = "A Python client for interacting with pongoOS."
 authors = ["m1stadev <adamhamdi31@gmail.com>"]
 license = "MIT"
 readme = "README.md"
